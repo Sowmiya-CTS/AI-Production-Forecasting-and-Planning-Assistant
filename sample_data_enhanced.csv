@@ -1,0 +1,75 @@
+date,sales,product_id,product_name,product_category,temperature,precipitation,season
+2024-01-01,120,P001,Laptop,Electronics,32,Snow,Winter
+2024-01-02,135,P001,Laptop,Electronics,30,Snow,Winter
+2024-01-03,142,P001,Laptop,Electronics,28,Snow,Winter
+2024-01-04,128,P001,Laptop,Electronics,31,Snow,Winter
+2024-01-05,145,P001,Laptop,Electronics,33,Snow,Winter
+2024-01-06,160,P001,Laptop,Electronics,34,Snow,Winter
+2024-01-07,175,P001,Laptop,Electronics,35,Snow,Winter
+2024-01-08,168,P001,Laptop,Electronics,36,Snow,Winter
+2024-01-09,155,P001,Laptop,Electronics,37,Snow,Winter
+2024-01-10,170,P001,Laptop,Electronics,38,Snow,Winter
+2024-02-01,85,P002,Smartphone,Electronics,35,Snow,Winter
+2024-02-02,90,P002,Smartphone,Electronics,36,Snow,Winter
+2024-02-03,95,P002,Smartphone,Electronics,37,Snow,Winter
+2024-02-04,88,P002,Smartphone,Electronics,38,Snow,Winter
+2024-02-05,92,P002,Smartphone,Electronics,39,Snow,Winter
+2024-02-06,98,P002,Smartphone,Electronics,40,Snow,Winter
+2024-02-07,105,P002,Smartphone,Electronics,41,Snow,Winter
+2024-02-08,110,P002,Smartphone,Electronics,42,Snow,Winter
+2024-03-01,150,P003,Coat,Clothing,45,Rain,Spring
+2024-03-02,160,P003,Coat,Clothing,46,Rain,Spring
+2024-03-03,170,P003,Coat,Clothing,47,Rain,Spring
+2024-03-04,180,P003,Coat,Clothing,48,Rain,Spring
+2024-03-05,190,P003,Coat,Clothing,49,Rain,Spring
+2024-03-06,200,P003,Coat,Clothing,50,Rain,Spring
+2024-03-07,210,P003,Coat,Clothing,51,Rain,Spring
+2024-03-08,220,P003,Coat,Clothing,52,Rain,Spring
+2024-04-01,250,P004,T-Shirt,Clothing,55,None,Spring
+2024-04-02,260,P004,T-Shirt,Clothing,56,None,Spring
+2024-04-03,270,P004,T-Shirt,Clothing,57,None,Spring
+2024-04-04,280,P004,T-Shirt,Clothing,58,None,Spring
+2024-04-05,290,P004,T-Shirt,Clothing,59,None,Spring
+2024-04-06,300,P004,T-Shirt,Clothing,60,None,Spring
+2024-04-07,310,P004,T-Shirt,Clothing,61,None,Spring
+2024-04-08,320,P004,T-Shirt,Clothing,62,None,Spring
+2024-05-01,350,P005,Water Bottle,Food & Beverage,65,None,Summer
+2024-05-02,360,P005,Water Bottle,Food & Beverage,66,None,Summer
+2024-05-03,370,P005,Water Bottle,Food & Beverage,67,None,Summer
+2024-05-04,380,P005,Water Bottle,Food & Beverage,68,None,Summer
+2024-05-05,390,P005,Water Bottle,Food & Beverage,69,None,Summer
+2024-05-06,400,P005,Water Bottle,Food & Beverage,70,None,Summer
+2024-05-07,410,P005,Water Bottle,Food & Beverage,71,None,Summer
+2024-05-08,420,P005,Water Bottle,Food & Beverage,72,None,Summer
+2024-06-01,450,P006,Snacks,Food & Beverage,75,None,Summer
+2024-06-02,460,P006,Snacks,Food & Beverage,76,None,Summer
+2024-06-03,470,P006,Snacks,Food & Beverage,77,None,Summer
+2024-06-04,480,P006,Snacks,Food & Beverage,78,None,Summer
+2024-06-05,490,P006,Snacks,Food & Beverage,79,None,Summer
+2024-06-06,500,P006,Snacks,Food & Beverage,80,None,Summer
+2024-06-07,510,P006,Snacks,Food & Beverage,81,None,Summer
+2024-06-08,520,P006,Snacks,Food & Beverage,82,None,Summer
+2024-07-01,400,P007,Umbrella,Seasonal,85,Rain,Summer
+2024-07-02,410,P007,Umbrella,Seasonal,86,Rain,Summer
+2024-07-03,420,P007,Umbrella,Seasonal,87,Rain,Summer
+2024-07-04,430,P007,Umbrella,Seasonal,88,Rain,Summer
+2024-07-05,440,P007,Umbrella,Seasonal,89,Rain,Summer
+2024-07-06,450,P007,Umbrella,Seasonal,90,Rain,Summer
+2024-07-07,460,P007,Umbrella,Seasonal,91,Rain,Summer
+2024-07-08,470,P007,Umbrella,Seasonal,92,Rain,Summer
+2024-08-01,300,P008,Heater,Home & Kitchen,60,None,Fall
+2024-08-02,310,P008,Heater,Home & Kitchen,61,None,Fall
+2024-08-03,320,P008,Heater,Home & Kitchen,62,None,Fall
+2024-08-04,330,P008,Heater,Home & Kitchen,63,None,Fall
+2024-08-05,340,P008,Heater,Home & Kitchen,64,None,Fall
+2024-08-06,350,P008,Heater,Home & Kitchen,65,None,Fall
+2024-08-07,360,P008,Heater,Home & Kitchen,66,None,Fall
+2024-08-08,370,P008,Heater,Home & Kitchen,67,None,Fall
+2024-09-01,400,P009,Blanket,Home & Kitchen,55,None,Fall
+2024-09-02,410,P009,Blanket,Home & Kitchen,56,None,Fall
+2024-09-03,420,P009,Blanket,Home & Kitchen,57,None,Fall
+2024-09-04,430,P009,Blanket,Home & Kitchen,58,None,Fall
+2024-09-05,440,P009,Blanket,Home & Kitchen,59,None,Fall
+2024-09-06,450,P009,Blanket,Home & Kitchen,60,None,Fall
+2024-09-07,460,P009,Blanket,Home & Kitchen,61,None,Fall
+2024-09-08,470,P009,Blanket,Home & Kitchen,62,None,Fall

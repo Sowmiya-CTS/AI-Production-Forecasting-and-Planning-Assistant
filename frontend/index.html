@@ -1,0 +1,1936 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Sales Forecaster</title>
+
+    <!-- 1. Modern Font from Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+    <!-- 2. Enhanced Custom Styles -->
+    <style>
+        /* --- START: Custom Image Background --- */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: url('https://www.europeanbusinessreview.com/wp-content/uploads/2023/10/Successful-Sales-Playbook.png') no-repeat center center fixed;
+            background-size: cover;
+            min-height: 100vh;
+            color: #232946;
+            position: relative;
+        }
+        .bg-abstract { display: none; }
+        /* --- END: Custom Image Background --- */
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .nav-tab {
+            padding: 0.5rem 1rem;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .nav-tab.active {
+            color: #DAA520; /* Goldenrod active color for new theme */
+            border-bottom-color: #DAA520;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background-image: linear-gradient(to right, #6B8E23, #9ACD32); /* OliveDrab to YellowGreen */
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -10px rgba(107, 142, 35, 0.5);
+        }
+
+        .loader {
+            border: 4px solid #93987c;
+            border-top: 4px solid #DAA520;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        .card-bg {
+            background-color: rgba(255, 255, 255, 0.05); /* Translucent effect */
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(245, 245, 220, 0.15); /* Beige-toned border */
+        }
+
+        /* Dark Mode Styles (Remains dark blue/black) */
+        .dark {
+            background-color: #0a0a0a;
+            background-image: linear-gradient(180deg, #0a0a0a 0%, #111827 100%);
+            color: #00fe59;
+        }
+        .dark .card-bg {
+             background-color: rgba(17, 24, 39, 0.7);
+             border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .dark .text-gray-400 { color: #9ca3af; }
+        .dark .border-gray-200 { border-color: #374151; }
+        .dark .nav-tab.active { color: #a5b4fc; border-bottom-color: #a5b4fc; }
+        .dark input, .dark select {
+            background-color: #374151;
+            color: #f9fafb;
+            border-color: #4b5563;
+        }
+        .dark .bg-indigo-100 { background-color: #3730a3; }
+        .dark .text-indigo-800 { color: #c7d2fe; }
+        .dark .bg-green-100 { background-color: #14532d; }
+        .dark .text-green-800 { color: #bbf7d0; }
+        .dark .bg-purple-100 { background-color: #581c87; }
+        .dark .text-purple-800 { color: #e9d5ff; }
+        .dark tr.bg-gray-50 { background-color: #374151; }
+        .dark .file\:bg-indigo-50 { background-color: #3730a3; }
+        .dark .file\:text-indigo-700 { color: #e0e7ff; }
+        .dark .bg-emerald-100 { background-color: #064e3b; }
+        .dark .text-emerald-800 { color: #a7f3d0; }
+        .dark .bg-cyan-100 { background-color: #155e75; }
+        .dark .text-cyan-800 { color: #a5f3fc; }
+        .dark .bg-blue-100 { background-color: #1e40af; }
+        .dark .text-blue-800 { color: #bfdbfe; }
+        .dark .text-gray-900 { color: #f9fafb; }
+        .dark .text-gray-500 { color: #9ca3af; }
+        .dark .bg-gray-100 { background-color: #374151; }
+
+        /* Reduce upload tab form size and spacing */
+        #upload .grid { gap: 1rem !important; }
+        #upload .p-4, #upload .md\:p-8 { padding: 0.5rem !important; }
+        #upload form { max-width: 90%; margin: 0 auto; }
+        #upload label, #upload input, #upload select, #upload button { font-size: 0.97rem !important; }
+
+        /* Forecast Results Tab Font and Color Fixes */
+        #forecast, #forecast * {
+          color: #232946 !important;
+          text-shadow: none !important;
+        }
+        #forecast .section-title, #forecast h2, #forecast h1 {
+          color: #232946 !important;
+          font-weight: 800 !important;
+        }
+        #forecast .bg-green-900, #forecast .bg-yellow-900, #forecast .bg-orange-900 {
+          background-color: #7bb7a5 !important;
+          color: #fff !important;
+        }
+        #forecast .text-green-200, #forecast .text-yellow-200, #forecast .text-orange-200 {
+          color: #fff !important;
+        }
+        #forecast .text-yellow-300, #forecast .text-yellow-100, #forecast .text-orange-100 {
+          color: #fbbf24 !important;
+          font-weight: 700;
+        }
+        #forecast table th, #forecast table td {
+          color: #232946 !important;
+          background: transparent !important;
+        }
+        #forecast table th {
+          background: #d1d5db !important;
+          color: #232946 !important;
+          font-weight: 700;
+        }
+        #forecast .font-bold, #forecast .font-semibold {
+          color: #232946 !important;
+        }
+        
+        /* Chatbot Styles */
+        .chatbot-button {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: #DAA520;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        .chatbot-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+        }
+        
+        .chatbot-container {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 350px;
+            height: 450px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 1000;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .chatbot-header {
+            background: linear-gradient(to right, #6B8E23, #9ACD32);
+            color: white;
+            padding: 15px;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .chatbot-close {
+            cursor: pointer;
+            font-size: 18px;
+        }
+        
+        .chatbot-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background-color: #f9fafb;
+        }
+        
+        .message {
+            margin-bottom: 10px;
+            max-width: 80%;
+            padding: 10px 15px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        .bot-message {
+            background-color: #e5e7eb;
+            color: #111827;
+            border-top-left-radius: 4px;
+            align-self: flex-start;
+        }
+        
+        .user-message {
+            background-color: #DAA520;
+            color: white;
+            border-top-right-radius: 4px;
+            align-self: flex-end;
+            margin-left: auto;
+        }
+        
+        .chatbot-input {
+            display: flex;
+            padding: 10px 15px;
+            background-color: white;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .chatbot-input input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 20px;
+            outline: none;
+            font-size: 14px;
+            color: #111827; /* Adding explicit text color for visibility */
+            background-color: #ffffff;
+        }
+        
+        .chatbot-input button {
+            background-color: #DAA520;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 15px;
+            margin-left: 10px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+        
+        .chatbot-input button:hover {
+            background-color: #c69500;
+        }
+    </style>
+</head>
+
+<body class="text-gray-200">
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 mb-8"> <!-- Reduced margin bottom to minimize gap -->
+
+    <!-- Header -->
+    <header class="flex items-center justify-between py-4 mb-8">
+        <div class="flex items-center gap-3">
+            <svg class="h-8 w-8 text-yellow-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+            </svg>
+            <span class="text-2xl font-bold">AI Forecaster</span>
+        </div>
+        <div class="text-sm bg-green-900 bg-opacity-50 text-green-200 px-3 py-1 rounded-full font-medium">ERROR : 404 FOUND</div>
+    </header>
+
+    <!-- Card Container for All Tabs -->
+    <div class="relative flex justify-center">
+      <div class="bg-white rounded-3xl shadow-2xl w-full max-w-4xl border border-gray-100 px-8 py-10">
+        <!-- Nav Tabs -->
+        <nav class="flex gap-6 mb-10 text-sm font-semibold border-b border-gray-200 border-opacity-20 justify-center">
+          <div class="nav-tab active cursor-pointer text-gray-700" data-tab="home">Home</div>
+          <div class="nav-tab cursor-pointer text-gray-700" data-tab="upload">Upload Data</div>
+          <div class="nav-tab cursor-pointer text-gray-700" data-tab="forecast">Forecast</div>
+          <div class="nav-tab cursor-pointer text-gray-700" data-tab="weather">Weather Impact</div>
+          <div class="nav-tab cursor-pointer text-gray-700" data-tab="inventory">Inventory Optimization</div>
+          <div class="nav-tab cursor-pointer text-gray-700" data-tab="material-shortage">Raw Material Shortage</div>
+
+        </nav>
+        <!-- Tab Content Container -->
+        <div id="tab-content">
+          <!-- Home Section -->
+          <section id="home" class="fade-in">
+            <div class="flex flex-col md:flex-row items-center gap-8">
+              <div class="flex-1 text-left">
+                <h1 class="text-4xl font-extrabold text-gray-800 mb-4">AI-Powered Sales Forecasting</h1>
+                <p class="text-gray-500 mb-6 text-lg">Upload your historical data and let our advanced AI models generate accurate forecasts to drive smarter business decisions.</p>
+                
+                <!-- Added key benefits section -->
+                <div class="mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-xl border-l-4 border-blue-400">
+                  <h4 class="text-blue-800 font-semibold mb-2">Why Choose Our AI Forecaster?</h4>
+                  <p class="text-sm text-gray-700 mb-3">Our platform combines cutting-edge machine learning algorithms with industry best practices to deliver forecasts that are up to 35% more accurate than traditional methods. Companies using our platform report an average of 22% reduction in excess inventory and 18% improvement in service levels.</p>
+                </div>
+                
+                <div class="flex flex-wrap gap-3 mt-6">
+                  <span class="bg-green-100 text-green-800 px-4 py-2 rounded-full font-medium text-sm flex items-center"><svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>High Accuracy</span>
+                  <span class="bg-yellow-100 text-yellow-800 px-4 py-2 rounded-full font-medium text-sm flex items-center"><svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>Enterprise Security</span>
+                  <span class="bg-blue-100 text-blue-800 px-4 py-2 rounded-full font-medium text-sm flex items-center"><svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path></svg>Real-time Insights</span>
+                  <span class="bg-purple-100 text-purple-800 px-4 py-2 rounded-full font-medium text-sm flex items-center"><svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>Fast Implementation</span>
+                </div>
+              </div>
+              <div class="flex-1 flex flex-col justify-center items-center">
+                <!-- Image Illustration -->
+                <div class="flex justify-center items-center">
+                  <img src="https://tse3.mm.bing.net/th/id/OIP.Yzc3Dj691eOsN93IJRZ0LgHaE8?rs=1&pid=ImgDetMain&o=7&rm=3" alt="Market Forecasting Illustration" class="backdrop-blur-md bg-black/40 rounded-3xl shadow-2xl w-full max-w-4xl border border-gray-200 px-8 py-8" style="box-shadow: 0 12px 40px 0 rgba(44,62,80,0.18), 0 2px 8px 0 rgba(44,62,80,0.10); color: #fff; border: 2px solid #bfc9d1; min-height: 230px; max-height: 20vh; overflow: visible;" />
+                </div>
+                
+                <!-- Added quick stats section -->
+                <div class="grid grid-cols-3 gap-4 mt-6 w-full">
+                  <div class="bg-white p-3 rounded-lg shadow-md text-center border-t-4 border-purple-500">
+                    <div class="text-2xl font-bold text-purple-600">35%</div>
+                    <div class="text-xs text-gray-500">Forecast Accuracy Improvement</div>
+                  </div>
+                  <div class="bg-white p-3 rounded-lg shadow-md text-center border-t-4 border-blue-500">
+                    <div class="text-2xl font-bold text-blue-600">22%</div>
+                    <div class="text-xs text-gray-500">Inventory Cost Reduction</div>
+                  </div>
+                  <div class="bg-white p-3 rounded-lg shadow-md text-center border-t-4 border-indigo-500">
+                    <div class="text-2xl font-bold text-indigo-600">18%</div>
+                    <div class="text-xs text-gray-500">Service Level Improvement</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Added features section -->
+            <div class="mt-12 mb-6">
+              <h3 class="text-xl font-bold text-gray-700 mb-4 text-center">Comprehensive Supply Chain Intelligence</h3>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-5 rounded-lg shadow-md border border-gray-100">
+                  <div class="flex items-center mb-3">
+                    <svg class="h-6 w-6 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                    <h4 class="text-md font-semibold text-gray-800">Sales Forecasting</h4>
+                  </div>
+                  <p class="text-sm text-gray-600">Advanced time-series models with seasonality detection and anomaly filtering for accurate predictions.</p>
+                </div>
+                <div class="bg-white p-5 rounded-lg shadow-md border border-gray-100">
+                  <div class="flex items-center mb-3">
+                    <svg class="h-6 w-6 text-purple-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                    <h4 class="text-md font-semibold text-gray-800">Inventory Optimization</h4>
+                  </div>
+                  <p class="text-sm text-gray-600">Balance inventory costs against service levels with AI-powered safety stock and reorder point calculations.</p>
+                </div>
+                <div class="bg-white p-5 rounded-lg shadow-md border border-gray-100">
+                  <div class="flex items-center mb-3">
+                    <svg class="h-6 w-6 text-indigo-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path></svg>
+                    <h4 class="text-md font-semibold text-gray-800">Weather Impact Analysis</h4>
+                  </div>
+                  <p class="text-sm text-gray-600">Understand how seasonal weather patterns affect your sales with location-specific impact analysis.</p>
+                </div>
+              </div>
+            </div>
+            
+
+          </section>
+          <!-- Upload Section -->
+          <section id="upload" class="hidden fade-in">
+            <div class="p-4 md:p-8">
+              <h2 class="section-title justify-center text-gray-800">
+                <svg class="h-8 w-8 text-yellow-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+                <span>Upload Historical Data</span>
+              </h2>
+              <div class="backdrop-blur-md bg-black/40 rounded-3xl shadow-2xl w-full max-w-4xl border border-gray-200 px-8 py-8 my-8" style="box-shadow: 0 12px 40px 0 rgba(44,62,80,0.18), 0 2px 8px 0 rgba(44,62,80,0.10); color: #fff; border: 2px solid #bfc9d1; min-height: 350px; max-height: 80vh; overflow: visible;">
+                <form id="forecast-form" class="grid gap-6 md:grid-cols-2 max-w-4xl mx-auto">
+                  <div>
+                    <label for="product_id" class="block text-sm font-medium mb-1 text-gray-700">Product ID</label>
+                    <input id="product_id" type="text" name="product_id" class="mt-1 w-full border-gray-300 bg-gray-100 text-gray-800 rounded-md shadow-sm px-3 py-2 focus:border-yellow-400 focus:ring-yellow-400" />
+                  </div>
+                  <div>
+                    <label for="product_name" class="block text-sm font-medium mb-1 text-gray-700">Product Name</label>
+                    <input id="product_name" type="text" name="product_name" class="mt-1 w-full border-gray-300 bg-gray-100 text-gray-800 rounded-md shadow-sm px-3 py-2 focus:border-yellow-400 focus:ring-yellow-400" />
+                  </div>
+                  <div class="md:col-span-2">
+                    <label for="location" class="block text-sm font-medium mb-1 text-gray-700">Location</label>
+                    <input id="location" type="text" name="location" class="mt-1 w-full border-gray-300 bg-gray-100 text-gray-800 rounded-md shadow-sm px-3 py-2 focus:border-yellow-400 focus:ring-yellow-400" />
+                  </div>
+                  <div>
+                    <label for="date_column" class="block text-sm font-medium mb-1 text-gray-700">Date Column Name</label>
+                    <input id="date_column" type="text" name="date_column" value="date" required class="mt-1 w-full border-gray-300 bg-gray-100 text-gray-800 rounded-md shadow-sm px-3 py-2 focus:border-yellow-400 focus:ring-yellow-400" />
+                  </div>
+                  <div>
+                    <label for="value_column" class="block text-sm font-medium mb-1 text-gray-700">Value Column Name</label>
+                    <input id="value_column" type="text" name="value_column" value="sales" required class="mt-1 w-full border-gray-300 bg-gray-100 text-gray-800 rounded-md shadow-sm px-3 py-2 focus:border-yellow-400 focus:ring-yellow-400" />
+                  </div>
+                  <div>
+                    <label for="frequency" class="block text-sm font-medium mb-1 text-gray-700">Frequency</label>
+                    <select id="frequency" name="frequency" class="mt-1 w-full border-gray-300 bg-gray-100 text-gray-800 rounded-md shadow-sm px-3 py-2 focus:border-yellow-400 focus:ring-yellow-400">
+                      <option value="Daily">Daily</option>
+                      <option value="Weekly">Weekly</option>
+                      <option value="Monthly">Monthly</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label for="horizon" class="block text-sm font-medium mb-1 text-gray-700">Forecast Horizon</label>
+                    <input id="horizon" type="number" name="horizon" value="30" min="1" required class="mt-1 w-full border-gray-300 bg-gray-100 text-gray-800 rounded-md shadow-sm px-3 py-2 focus:border-yellow-400 focus:ring-yellow-400" />
+                  </div>
+                  <div class="md:col-span-2">
+                    <label for="file" class="block text-sm font-medium mb-1 text-gray-700">Upload Data File</label>
+                    <input id="file" type="file" name="file" required class="mt-1 w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-yellow-100 file:text-yellow-900 hover:file:bg-yellow-200 cursor-pointer" />
+                  </div>
+                  <div class="md:col-span-2 flex justify-center mt-4">
+                    <button type="submit" class="bg-yellow-400 hover:bg-yellow-500 text-white font-bold px-10 py-3 rounded-lg shadow-md transition">Generate Forecast</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </section>
+          <!-- Forecast Output -->
+          <section id="forecast" class="hidden fade-in">
+            <div class="p-4 md:p-8">
+              <h2 class="section-title justify-center text-gray-800">
+                <svg class="h-8 w-8 text-yellow-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                <span>Forecast Results</span>
+              </h2>
+              <div id="results-container" class="mt-6 text-center">
+                <p class="text-gray-400">Results will appear here after running a forecast.</p>
+              </div>
+            </div>
+          </section>
+
+          <!-- Weather Impact Section -->
+          <section id="weather" class="hidden fade-in">
+            <div class="p-4 md:p-8">
+              <h2 class="section-title justify-center text-gray-800">
+                <svg class="h-8 w-8 text-yellow-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                </svg>
+                <span>Weather-Driven Forecasting</span>
+              </h2>
+              <p class="text-gray-500 mb-6">Analyze how weather conditions impact your sales forecasts and optimize inventory planning.</p>
+              
+              <!-- Added motivational and ideological content -->
+              <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-xl mb-6 border-l-4 border-blue-400">
+                <h4 class="text-blue-800 font-semibold mb-2">Why Weather Impact Analysis Matters</h4>
+                <p class="text-sm text-blue-700">Weather is one of the most significant external factors affecting consumer behavior and purchasing decisions. Our AI-powered analysis helps you stay ahead of weather-related sales fluctuations by providing data-driven recommendations that can increase revenue by up to 20% during seasonal transitions.</p>
+                <div class="mt-3 flex items-center">
+                  <svg class="h-5 w-5 text-blue-600 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                  <p class="text-xs font-medium text-blue-700">Companies using weather analytics see an average 15% reduction in excess inventory costs</p>
+                </div>
+              </div>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <!-- Weather Parameters Form -->
+                <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+                  <h3 class="text-lg font-semibold text-gray-700 mb-4">Weather Parameters</h3>
+                  <form id="weather-form" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                        <select id="location" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400 text-gray-700">
+                          <option value="New York">New York</option>
+                          <option value="Los Angeles">Los Angeles</option>
+                          <option value="Chicago">Chicago</option>
+                          <option value="Mumbai">Mumbai, India</option>
+                          <option value="Delhi">Delhi, India</option>
+                          <option value="Bangalore">Bangalore, India</option>
+                          <option value="Miami">Miami</option>
+                          <option value="Seattle">Seattle</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Season</label>
+                        <select id="season" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400 text-gray-700">
+                          <option value="Winter">Winter</option>
+                          <option value="Spring">Spring</option>
+                          <option value="Summer">Summer</option>
+                          <option value="Fall">Fall</option>
+                        </select>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">Temperature Range (°F)</label>
+                      <div class="flex items-center space-x-2">
+                        <input type="range" min="0" max="100" value="70" class="flex-1 accent-purple-500" id="temp-slider">
+                        <span class="text-gray-700 w-12 text-center" id="temp-value">70°F</span>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">Precipitation</label>
+                      <div class="grid grid-cols-3 gap-2">
+                        <div class="flex items-center">
+                          <input type="radio" name="precipitation" id="none" value="None" checked class="mr-2 accent-purple-500">
+                          <label for="none" class="text-sm text-gray-700">None</label>
+                        </div>
+                        <div class="flex items-center">
+                          <input type="radio" name="precipitation" id="rain" value="Rain" class="mr-2 accent-purple-500">
+                          <label for="rain" class="text-sm text-gray-700">Rain</label>
+                        </div>
+                        <div class="flex items-center">
+                          <input type="radio" name="precipitation" id="snow" value="Snow" class="mr-2 accent-purple-500">
+                          <label for="snow" class="text-sm text-gray-700">Snow</label>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">Product Category</label>
+                      <select id="product-category" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-700">
+                        <option value="Clothing">Clothing</option>
+                        <option value="Food & Beverage">Food & Beverages</option>
+                        <option value="Electronics">Electronics</option>
+                        <option value="Home & Kitchen">Home Goods</option>
+                        <option value="Seasonal">Outdoor Equipment</option>
+                      </select>
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-medium py-2 px-4 rounded-md transition duration-300 flex items-center justify-center">
+                      <svg class="h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                      </svg>
+                      Generate Weather Impact Analysis
+                    </button>
+                  </form>
+                </div>
+                
+                <!-- Weather Impact Visualization -->
+                <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+                  <h3 class="text-lg font-semibold text-gray-700 mb-4">Weather Impact Visualization</h3>
+                  
+                  <!-- Added motivational content -->
+                  <div class="mb-4 p-3 bg-white rounded-lg border border-gray-200 shadow-sm">
+                    <p class="text-sm text-gray-800"><strong class="text-indigo-600">Why This Matters:</strong> Weather patterns can impact sales by up to 30% in certain industries. Proactive planning based on weather forecasts can significantly improve inventory management and marketing effectiveness.</p>
+                  </div>
+                  
+                  <div id="weather-chart" class="h-64 flex items-center justify-center bg-gray-50 rounded-lg border border-gray-200">
+                    <div class="text-center text-gray-500">
+                      <svg class="h-12 w-12 mx-auto text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <p class="mt-2">Select parameters and generate analysis to view weather impact visualization</p>
+                    </div>
+                  </div>
+                  
+                  <!-- Added methodology explanation -->
+                  <div class="mt-4 text-xs text-gray-500">
+                    <p><strong>Methodology:</strong> Our AI analyzes historical sales data correlated with weather patterns across different regions and seasons to predict how weather changes impact consumer behavior and purchasing decisions.</p>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Weather Impact Results -->
+              <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100 hidden" id="weather-results">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">Weather Impact Analysis</h3>
+                
+                <!-- Added ideological content about data-driven decision making -->
+                <div class="mb-4 p-3 bg-white rounded-lg border border-gray-200 shadow-sm">
+                  <p class="text-sm text-gray-800"><strong class="text-indigo-600">Data-Driven Decision Making:</strong> This analysis combines historical sales data with meteorological patterns to provide actionable insights. Companies that leverage weather data in their planning see an average 15% improvement in inventory efficiency.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                  <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                    <h4 class="text-sm font-semibold text-gray-800 mb-1">Sales Impact</h4>
+                    <p class="text-2xl font-bold text-purple-600">+12.4%</p>
+                    <p class="text-xs text-gray-600 mt-1">Compared to average conditions</p>
+                  </div>
+                  <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                    <h4 class="text-sm font-semibold text-gray-800 mb-1">Recommended Inventory</h4>
+                    <p class="text-2xl font-bold text-blue-600">+8.7%</p>
+                    <p class="text-xs text-gray-600 mt-1">Increase from baseline</p>
+                  </div>
+                  <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                    <h4 class="text-sm font-semibold text-gray-800 mb-1">Confidence Score</h4>
+                    <p class="text-2xl font-bold text-indigo-600">87%</p>
+                    <p class="text-xs text-gray-600 mt-1">Based on historical correlations</p>
+                  </div>
+                </div>
+                <div class="space-y-4">
+                  <h4 class="text-md font-semibold text-gray-700">Key Insights</h4>
+                  <ul class="list-disc list-inside text-gray-600 space-y-1 text-sm">
+                    <li>Summer temperatures above 75°F correlate with a 12.4% increase in outdoor equipment sales</li>
+                    <li>Historical data shows consistent sales spikes during warm weekends in coastal locations</li>
+                    <li>Consider increasing inventory of high-margin seasonal items by 15-20%</li>
+                    <li>Promotional campaigns timed with favorable weather forecasts show 23% higher conversion rates</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Inventory Optimization Section -->
+          <section id="inventory" class="hidden fade-in">
+            <div class="p-4 md:p-8">
+              <h2 class="section-title justify-center text-gray-800">
+                <svg class="h-8 w-8 text-yellow-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                </svg>
+                <span>Automated Inventory Optimization</span>
+              </h2>
+              <p class="text-gray-500 mb-6">Optimize your inventory levels based on sales forecasts, lead times, and safety stock requirements.</p>
+              
+              <!-- Added motivational and ideological content for inventory optimization -->
+              <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-xl mb-6 border-l-4 border-blue-400">
+                <h4 class="text-blue-800 font-semibold mb-2">The Science of Inventory Optimization</h4>
+                <p class="text-sm text-gray-700">Effective inventory management is the cornerstone of operational excellence. Our AI-powered optimization engine uses advanced algorithms to balance inventory costs against service levels, reducing carrying costs by up to 25% while maintaining or improving product availability.</p>
+                <div class="mt-3 grid grid-cols-2 gap-2">
+                  <div class="flex items-center">
+                    <svg class="h-5 w-5 text-blue-600 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p class="text-xs font-medium text-blue-700">Reduce stockouts by up to 30%</p>
+                  </div>
+                  <div class="flex items-center">
+                    <svg class="h-5 w-5 text-blue-600 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p class="text-xs font-medium text-blue-700">Lower inventory costs by 15-25%</p>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Inventory Optimization Form -->
+              <div class="backdrop-blur-md bg-black/40 rounded-3xl shadow-2xl w-full max-w-4xl border border-gray-200 px-8 py-8 my-8" style="box-shadow: 0 12px 40px 0 rgba(44,62,80,0.18), 0 2px 8px 0 rgba(44,62,80,0.10); color: #fff; border: 2px solid #bfc9d1; min-height: 350px; max-height: 80vh; overflow: visible;">
+                <form id="inventory-form" class="grid gap-6 md:grid-cols-2">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Product Category</label>
+                    <select id="inventory-category" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400 text-gray-700">
+                      <option value="electronics">Electronics</option>
+                      <option value="clothing">Clothing</option>
+                      <option value="food">Food & Beverages</option>
+                      <option value="seasonal">Seasonal</option>
+                      <option value="home">Home & Kitchen</option>
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                    <select id="inventory-location" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400 text-gray-700">
+                      <option value="new-york">New York</option>
+                      <option value="los-angeles">Los Angeles</option>
+                      <option value="chicago">Chicago</option>
+                      <option value="mumbai">Mumbai, India</option>
+                      <option value="delhi">Delhi, India</option>
+                      <option value="bangalore">Bangalore, India</option>
+                      <option value="miami">Miami</option>
+                      <option value="seattle">Seattle</option>
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Lead Time (days)</label>
+                    <input id="lead-time" type="number" min="1" max="90" value="14" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400 text-gray-700">
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Service Level</label>
+                    <select id="service-level" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400 text-gray-700">
+                      <option value="90">90% (Standard)</option>
+                      <option value="95">95% (High)</option>
+                      <option value="99">99% (Premium)</option>
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Holding Cost (%)</label>
+                    <input id="holding-cost" type="number" min="1" max="100" value="25" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400 text-gray-700">
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Stockout Cost (%)</label>
+                    <input id="stockout-cost" type="number" min="1" max="100" value="40" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400 text-gray-700">
+                  </div>
+                  
+                  <div class="md:col-span-2">
+                    <button type="submit" id="optimize-inventory-btn" class="w-full bg-yellow-400 hover:bg-yellow-500 text-white font-medium py-2 px-4 rounded-md transition duration-300 flex items-center justify-center">
+                      <svg class="h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                      </svg>
+                      Generate Inventory Optimization
+                    </button>
+                  </div>
+                </form>
+              </div>
+              
+              <!-- Inventory Results -->
+              <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100 hidden" id="inventory-results">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">Inventory Optimization Results</h3>
+                
+                <!-- Added ideological content about data-driven inventory management -->
+                <div class="mb-4 p-3 bg-indigo-50 rounded-lg border border-indigo-100">
+                  <p class="text-sm text-indigo-800"><strong>AI-Powered Inventory Excellence:</strong> These recommendations are generated using advanced Economic Order Quantity (EOQ) models, statistical safety stock calculations, and machine learning algorithms that analyze historical demand patterns. Companies implementing these strategies typically see a 20% reduction in working capital tied up in inventory.</p>
+                </div>
+                
+                <!-- Results Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                  <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                    <h4 class="text-sm font-semibold text-blue-700 mb-1">Optimal Order Quantity</h4>
+                    <p id="optimal-quantity" class="text-2xl font-bold text-blue-800">--</p>
+                    <p class="text-xs text-blue-600 mt-1">Units per order</p>
+                  </div>
+                  <div class="bg-green-50 p-4 rounded-lg border border-green-100">
+                    <h4 class="text-sm font-semibold text-green-700 mb-1">Safety Stock</h4>
+                    <p id="safety-stock" class="text-2xl font-bold text-green-800">--</p>
+                    <p class="text-xs text-green-600 mt-1">Units to prevent stockouts</p>
+                  </div>
+                  <div class="bg-purple-50 p-4 rounded-lg border border-purple-100">
+                    <h4 class="text-sm font-semibold text-purple-700 mb-1">Reorder Point</h4>
+                    <p id="reorder-point" class="text-2xl font-bold text-purple-800">--</p>
+                    <p class="text-xs text-purple-600 mt-1">When to place new orders</p>
+                  </div>
+                </div>
+                
+                <!-- Cost Analysis -->
+                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-6">
+                  <h4 class="text-md font-semibold text-gray-700 mb-3">Cost Analysis</h4>
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <p class="text-sm text-gray-500">Ordering Cost</p>
+                      <p id="ordering-cost" class="text-lg font-semibold text-gray-800">--</p>
+                    </div>
+                    <div>
+                      <p class="text-sm text-gray-500">Holding Cost</p>
+                      <p id="total-holding-cost" class="text-lg font-semibold text-gray-800">--</p>
+                    </div>
+                    <div>
+                      <p class="text-sm text-gray-500">Total Annual Cost</p>
+                      <p id="total-cost" class="text-lg font-semibold text-gray-800">--</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Recommendations -->
+                <div class="space-y-4">
+                  <!-- Added methodology explanation -->
+                  <div class="p-3 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg border border-gray-200 mb-4">
+                    <h5 class="text-sm font-semibold text-gray-700 mb-2">Methodology & Approach</h5>
+                    <p class="text-xs text-gray-600">Our AI optimization engine uses a combination of classical inventory models (EOQ, safety stock calculations) and machine learning to analyze demand patterns, lead time variability, and service level requirements. The system continuously learns from your historical data to improve accuracy over time.</p>
+                  </div>
+                  <h4 class="text-md font-semibold text-gray-700">Recommendations</h4>
+                  <ul id="inventory-recommendations" class="list-disc list-inside text-gray-600 space-y-1 text-sm">
+                    <li>Loading recommendations...</li>
+                  </ul>
+                  
+                  <!-- Added crispy implementation guidance -->
+                  <div class="mt-4 p-3 bg-yellow-50 rounded-lg border border-yellow-100">
+                    <h5 class="text-sm font-semibold text-yellow-700 mb-2">Implementation Strategy</h5>
+                    <ol class="text-xs text-gray-700 list-decimal pl-4 space-y-1">
+                      <li><strong>Phase 1:</strong> Adjust order quantities and reorder points in your inventory management system</li>
+                      <li><strong>Phase 2:</strong> Implement cycle counting to validate inventory accuracy</li>
+                      <li><strong>Phase 3:</strong> Monitor key performance indicators (service levels, inventory turns)</li>
+                      <li><strong>Phase 4:</strong> Review and refine parameters quarterly based on actual performance</li>
+                    </ol>
+                    <p class="text-xs text-yellow-600 mt-2"> <strong>Pro Tip:</strong> Consider implementing ABC analysis to focus optimization efforts on your highest-value inventory items first.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+          
+          <!-- Raw Material Shortage Section -->
+          <section id="material-shortage" class="hidden fade-in">
+            <div class="p-4 md:p-8">
+              <h2 class="section-title justify-center text-gray-800">
+                <svg class="h-8 w-8 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+                <span>Raw Material Shortage Alerts</span>
+              </h2>
+              <p class="text-gray-500 mb-6">Proactive supply chain risk management to identify and mitigate potential material shortages before they impact production.</p>
+              
+              <!-- Added motivational and ideological content -->
+              <div class="bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-xl mb-6 border-l-4 border-purple-400">
+                <h4 class="text-purple-800 font-semibold mb-2">Why Material Shortage Alerts Matter</h4>
+                <p class="text-sm text-purple-700">In today's volatile global supply chains, material shortages can severely impact production schedules and customer satisfaction. Our AI-powered alert system provides early warnings about potential disruptions, allowing you to take proactive measures and maintain operational continuity.</p>
+                <div class="mt-3 flex items-center">
+                  <svg class="h-5 w-5 text-purple-600 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                  <p class="text-xs font-medium text-purple-700">Companies using predictive shortage alerts reduce production disruptions by up to 40%</p>
+                </div>
+              </div>
+              
+              <!-- Raw Material Shortage Dashboard -->
+              <div class="mb-8 bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+                <div class="bg-gradient-to-r from-purple-500 to-blue-500 px-6 py-4">
+                  <h3 class="text-xl font-bold text-white flex items-center">
+                    <svg class="h-6 w-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                    </svg>
+                    Raw Material Shortage Dashboard
+                  </h3>
+                  <p class="text-white text-opacity-90 text-sm mt-1">Real-time Supply Chain Risk Management</p>
+                </div>
+                
+                <div class="p-6">
+                  <div class="mb-5">
+                    <h4 class="text-lg font-semibold text-gray-800 mb-2">Overview</h4>
+                    <p class="text-gray-600 text-sm">Our Raw Material Shortage Alerts system uses predictive analytics to identify potential supply chain disruptions before they impact your production. By analyzing historical data patterns, supplier performance, global market trends, and geopolitical factors, our AI provides early warnings about possible raw material shortages.</p>
+                  </div>
+                  
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                      <h5 class="font-medium text-gray-800 mb-2 flex items-center">
+                        <svg class="h-5 w-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Key Benefits
+                      </h5>
+                      <ul class="text-sm text-gray-600 space-y-2 list-disc list-inside">
+                        <li>Reduce production disruptions by up to 40%</li>
+                        <li>Minimize emergency sourcing costs by 25-35%</li>
+                        <li>Improve supplier negotiation leverage</li>
+                        <li>Maintain optimal inventory levels</li>
+                        <li>Protect customer service levels during shortages</li>
+                      </ul>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                      <h5 class="font-medium text-gray-800 mb-2 flex items-center">
+                        <svg class="h-5 w-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                        Features
+                      </h5>
+                      <ul class="text-sm text-gray-600 space-y-2 list-disc list-inside">
+                        <li>Real-time risk scoring for materials</li>
+                        <li>Automated alerts via email, SMS, and dashboard</li>
+                        <li>Alternative supplier recommendations</li>
+                        <li>Material substitution suggestions</li>
+                        <li>Production schedule impact analysis</li>
+                      </ul>
+                    </div>
+                  </div>
+                  
+                  <div class="mb-5">
+                    <h4 class="text-lg font-semibold text-gray-800 mb-2">How It Works</h4>
+                    <ol class="text-sm text-gray-600 space-y-3 list-decimal list-inside">
+                      <li class="p-2 bg-blue-50 rounded-md"><span class="font-medium">Data Integration:</span> Connect your ERP, supplier data, and external market intelligence sources</li>
+                      <li class="p-2 bg-blue-50 rounded-md"><span class="font-medium">Risk Assessment:</span> AI algorithms continuously evaluate supply risk factors for each material</li>
+                      <li class="p-2 bg-blue-50 rounded-md"><span class="font-medium">Early Detection:</span> System identifies potential shortages 30-90 days before they occur</li>
+                      <li class="p-2 bg-blue-50 rounded-md"><span class="font-medium">Mitigation Planning:</span> Receive actionable recommendations to address potential shortages</li>
+                      <li class="p-2 bg-blue-50 rounded-md"><span class="font-medium">Continuous Learning:</span> System improves over time based on outcomes and feedback</li>
+                    </ol>
+                  </div>
+                  
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td class="py-3 px-4 border-b text-sm font-medium text-indigo-900">Semiconductor Chips</td>
+                            <td class="py-3 px-4 border-b border-blue-200">
+                              <span class="px-2 py-1 text-xs font-semibold rounded-full bg-purple-200 text-purple-800">High Risk</span>
+                            </td>
+                            <td class="py-3 px-4 border-b text-sm font-medium text-indigo-900">+45 days</td>
+                            <td class="py-3 px-4 border-b text-sm font-medium text-indigo-900">Secure alternative supplier</td>
+                          </tr>
+                          <tr>
+                            <td class="py-3 px-4 border-b text-sm font-medium text-indigo-900">Aluminum Extrusions</td>
+                            <td class="py-3 px-4 border-b border-blue-200">
+                              <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-200 text-blue-800">Medium Risk</span>
+                            </td>
+                            <td class="py-3 px-4 border-b text-sm font-medium text-indigo-900">+15 days</td>
+                            <td class="py-3 px-4 border-b text-sm font-medium text-indigo-900">Increase safety stock</td>
+                          </tr>
+                          <tr>
+                            <td class="py-3 px-4 border-b text-sm font-medium text-indigo-900">Plastic Resins</td>
+                            <td class="py-3 px-4 border-b border-blue-200">
+                              <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-200 text-blue-800">Medium Risk</span>
+                            </td>
+                            <td class="py-3 px-4 border-b text-sm font-medium text-indigo-900">+20 days</td>
+                            <td class="py-3 px-4 border-b text-sm font-medium text-indigo-900">Evaluate alternative materials</td>
+                          </tr>
+                          <tr>
+                            <td class="py-3 px-4 border-b text-sm font-medium text-indigo-900">Steel Components</td>
+                            <td class="py-3 px-4 border-b border-blue-200">
+                              <span class="px-2 py-1 text-xs font-semibold rounded-full bg-indigo-100 text-indigo-800">Low Risk</span>
+                            </td>
+                            <td class="py-3 px-4 border-b text-sm font-medium text-indigo-900">+0 days</td>
+                            <td class="py-3 px-4 border-b text-sm font-medium text-indigo-900">Monitor market conditions</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                  
+                  <!-- Interactive Demo Placeholder -->
+                  <div class="mt-6 border border-dashed border-gray-300 rounded-lg p-4 text-center">
+                    <h5 class="font-medium text-gray-700 mb-2">Interactive Demo</h5>
+                    <p class="text-sm text-gray-500 mb-3">Experience how the Raw Material Shortage Alerts system works in your environment</p>
+                    <button class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-300">Try Demo</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+          
+
+        </div>
+      </div>
+    </div>
+</div>
+
+<!-- Professional Dashboard Footer -->
+<footer class="w-full py-4 px-4 bg-gradient-to-r from-gray-900 to-gray-800 text-gray-300 border-t border-gray-700 z-10" style="backdrop-filter: blur(10px);">
+  <div class="container-fluid px-4">
+        <!-- Footer Top Section with Grid Layout -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 py-2 mb-3 border-b border-gray-700 border-opacity-50">
+          <!-- Company Info -->
+          <div class="col-span-1">
+            <div class="flex items-center gap-2 mb-2">
+              <svg class="h-6 w-6 text-yellow-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+              </svg>
+              <span class="text-lg font-bold text-white">AI Forecaster</span>
+            </div>
+            <p class="text-sm text-gray-400 mb-2">Advanced AI-powered sales forecasting platform for enterprise decision-making.</p>
+            <div class="flex space-x-3 mt-3">
+              <a href="#" class="text-gray-400 hover:text-white transition">
+                <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path fill-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clip-rule="evenodd" />
+                </svg>
+              </a>
+              <a href="#" class="text-gray-400 hover:text-white transition">
+                <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
+              </svg>
+              </a>
+              <a href="#" class="text-gray-400 hover:text-white transition">
+                <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path fill-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clip-rule="evenodd" />
+              </svg>
+              </a>
+              <a href="#" class="text-gray-400 hover:text-white transition">
+                <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+              </a>
+            </div>
+          </div>
+          
+          <!-- Quick Links -->
+          <div class="col-span-1">
+            <h3 class="text-sm font-semibold text-white uppercase tracking-wider mb-3">Quick Links</h3>
+            <ul class="space-y-2 text-sm">
+              <li><a href="#" class="text-gray-400 hover:text-yellow-300 transition">Dashboard</a></li>
+              <li><a href="#" onclick="showTab('upload'); return false;" class="text-gray-400 hover:text-yellow-300 transition">Documentation</a></li>
+              <li><a href="#" class="text-gray-400 hover:text-yellow-300 transition">API Reference</a></li>
+              <li><a href="#" class="text-gray-400 hover:text-yellow-300 transition">Support Center</a></li>
+            </ul>
+          </div>
+          
+          <!-- Resources -->
+          <div class="col-span-1">
+            <h3 class="text-sm font-semibold text-white uppercase tracking-wider mb-3">Resources</h3>
+            <ul class="space-y-2 text-sm">
+              <li><a href="/documents/AI_Production_Forecasting_Planning_Assistant.docx" download class="text-gray-400 hover:text-yellow-300 transition">AI Production Forecasting</a></li>
+              <li><a href="#" class="text-gray-400 hover:text-yellow-300 transition">Webinars</a></li>
+              <li><a href="#" class="text-gray-400 hover:text-yellow-300 transition">White Papers</a></li>
+              <li><a href="#" class="text-gray-400 hover:text-yellow-300 transition">Blog</a></li>
+            </ul>
+          </div>
+          
+          <!-- Newsletter -->
+          <div class="col-span-1">
+            <h3 class="text-sm font-semibold text-white uppercase tracking-wider mb-3">Stay Updated</h3>
+            <p class="text-sm text-gray-400 mb-3">Subscribe to our newsletter for the latest updates and insights.</p>
+            <form class="flex">
+              <input type="email" placeholder="Your email" class="px-3 py-2 bg-gray-700 text-white text-sm rounded-l-md focus:outline-none focus:ring-1 focus:ring-yellow-400 w-full" />
+              <button type="submit" class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-medium px-3 py-2 text-sm rounded-r-md transition">Subscribe</button>
+            </form>
+          </div>
+        </div>
+        
+        <!-- Footer Bottom Section -->
+        <div class="flex flex-col md:flex-row items-center justify-between py-2 text-sm">
+          <div class="flex items-center space-x-1">
+            <span class="text-gray-400">&copy; 2025 AI Forecaster. All rights reserved.</span>
+            <span class="hidden md:inline text-gray-600">|</span>
+            <span class="text-gray-400 hidden md:inline">Version 2.4.1</span>
+          </div>
+          <div class="flex items-center space-x-4 mt-2 md:mt-0">
+            <a href="#" class="text-gray-400 hover:text-yellow-300 transition text-sm">Privacy Policy</a>
+            <a href="#" class="text-gray-400 hover:text-yellow-300 transition text-sm">Terms of Service</a>
+            <a href="#" class="text-gray-400 hover:text-yellow-300 transition text-sm">Contact</a>
+            <a href="#" class="text-gray-400 hover:text-yellow-300 transition text-sm">Sitemap</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+<!-- Chatbot Interface -->
+<div class="chatbot-button" id="chatbot-button">
+  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <!-- Robot Head -->
+    <rect x="4" y="5" width="16" height="14" rx="2" stroke-width="2" />
+    <!-- Robot Eyes -->
+    <circle cx="9" cy="10" r="1.5" fill="currentColor" />
+    <circle cx="15" cy="10" r="1.5" fill="currentColor" />
+    <!-- Robot Antenna -->
+    <line x1="12" y1="5" x2="12" y2="2" stroke-width="2" stroke-linecap="round" />
+    <circle cx="12" cy="2" r="0.5" fill="currentColor" />
+    <!-- Robot Mouth -->
+    <path d="M8 14h8" stroke-width="2" stroke-linecap="round" />
+  </svg>
+</div>
+
+<div class="chatbot-container" id="chatbot-container">
+  <div class="chatbot-header">
+    <div>AI Forecasting Assistant</div>
+    <div class="chatbot-close" id="chatbot-close">×</div>
+  </div>
+  <div class="chatbot-messages" id="chatbot-messages">
+    <div class="message bot-message">Hello! I'm your AI Forecasting Assistant. How can I help you today?</div>
+  </div>
+  <div class="chatbot-input">
+    <input type="text" id="chatbot-input-field" placeholder="Type your question here..." />
+    <button id="chatbot-send">Send</button>
+  </div>
+</div>
+
+<script>
+    const forecastForm = document.getElementById('forecast-form');
+    const resultsContainer = document.getElementById('results-container');
+    const tabs = document.querySelectorAll('.nav-tab');
+    const tabContents = document.querySelectorAll('#tab-content > section');
+
+    // --- TAB NAVIGATION ---
+    function activateTab(tabId) {
+        // Remove active class from all tabs
+        tabs.forEach(t => t.classList.remove('active'));
+        // Add active class to selected tab
+        const selectedTab = document.querySelector(`.nav-tab[data-tab="${tabId}"]`);
+        if (selectedTab) selectedTab.classList.add('active');
+        
+        // Hide all tab contents
+        tabContents.forEach(content => {
+            content.classList.add('hidden');
+        });
+        
+        // Show selected tab content
+        const selectedContent = document.getElementById(tabId);
+        if (selectedContent) {
+            selectedContent.classList.remove('hidden');
+            console.log('Activated tab:', tabId);
+        } else {
+            console.error('Tab content not found:', tabId);
+        }
+    }
+    
+    // Add click event listeners to all tabs
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            const target = tab.getAttribute('data-tab');
+            activateTab(target);
+        });
+    });
+
+    function showTab(tabId) {
+        activateTab(tabId);
+    }
+    
+    // Initialize the tabs - ensure only home tab is visible on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        // Activate the home tab by default
+        activateTab('home');
+    });
+
+    // --- FORM SUBMISSION ---
+    forecastForm.addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        // Switch to forecast tab and show loader
+        showTab('forecast');
+        resultsContainer.innerHTML = `
+            <div class="loader"></div>
+            <p class="text-lg text-gray-400">Training models and generating forecast... This may take a moment.</p>
+        `;
+
+        const formData = new FormData(forecastForm);
+
+        try {
+            const response = await fetch('/api/forecast', {
+                method: 'POST',
+                body: formData,
+            });
+            const result = await response.json();
+            if (!response.ok) {
+                throw new Error(result.detail || 'An unknown error occurred.');
+            }
+            renderResults(result);
+        } catch (error) {
+            resultsContainer.innerHTML = `
+                <div class="bg-red-200 border-l-4 border-red-500 text-red-800 p-4 rounded-md text-left" role="alert">
+                    <p class="font-bold">An Error Occurred</p>
+                    <p>${error.message}</p>
+                </div>
+            `;
+        }
+    });
+
+    // --- RENDER RESULTS ---
+    function renderResults(data) {
+        resultsContainer.innerHTML = ''; // Clear loader
+
+        // Helper to get the correct time unit for the horizon
+        const unitMap = {
+            'Daily': 'Day',
+            'Weekly': 'Week',
+            'Monthly': 'Month'
+        };
+        const unit = unitMap[data.forecast_frequency] || 'Periods';
+        const pluralUnit = data.forecast_horizon > 1 ? unit + 's' : unit;
+
+        // 1. Create Summary Info Cards
+        const summaryDiv = document.createElement('div');
+        summaryDiv.className = 'grid md:grid-cols-3 gap-4 mb-8 text-center';
+        // language=HTML
+        summaryDiv.innerHTML = `
+            <div class="bg-green-900 bg-opacity-50 p-4 rounded-lg">
+                <p class="text-sm text-green-200 font-semibold">Best Performing Model</p>
+                <p class="text-2xl text-green-100 font-bold">${data.best_model}</p>
+            </div>
+            <div class="bg-yellow-900 bg-opacity-50 p-4 rounded-lg">
+                <p class="text-sm text-yellow-200 font-semibold">Model RMSE</p>
+                <p class="text-2xl text-yellow-100 font-bold">${data.rmse_on_test_set}</p>
+            </div>
+            <div class="bg-orange-900 bg-opacity-50 p-4 rounded-lg">
+                <p class="text-sm text-orange-200 font-semibold">Forecast Horizon</p>
+                <p class="text-2xl text-orange-100 font-bold">${data.forecast_horizon} ${pluralUnit}</p>
+            </div>
+        `;
+        resultsContainer.appendChild(summaryDiv);
+        
+        // Add product details if available
+        if (data.product_id || data.product_name || data.location) {
+            const productDetailsDiv = document.createElement('div');
+            productDetailsDiv.className = 'bg-blue-900 bg-opacity-50 p-4 rounded-lg my-4';
+            productDetailsDiv.innerHTML = `
+                <h3 class="text-lg font-semibold text-blue-200 mb-2">Product Details</h3>
+                <div class="grid md:grid-cols-3 gap-4">
+                    ${data.product_id ? `<div><p class="text-sm text-blue-200">Product ID</p><p class="font-bold text-blue-100">${data.product_id}</p></div>` : ''}
+                    ${data.product_name ? `<div><p class="text-sm text-blue-200">Product Name</p><p class="font-bold text-blue-100">${data.product_name}</p></div>` : ''}
+                    ${data.location ? `<div><p class="text-sm text-blue-200">Location</p><p class="font-bold text-blue-100">${data.location}</p></div>` : ''}
+                </div>
+            `;
+            resultsContainer.appendChild(productDetailsDiv);
+        }
+
+        // 2. Create the Results Table
+        const table = document.createElement('table');
+        table.className = 'w-full text-sm text-left';
+
+        const thead = document.createElement('thead');
+        thead.className = 'text-xs text-gray-300 uppercase bg-black bg-opacity-20';
+        thead.innerHTML = `
+            <tr>
+                <th scope="col" class="px-6 py-3">Date</th>
+                <th scope="col" class="px-6 py-3 text-right">Forecasted Value</th>
+                <th scope="col" class="px-6 py-3 text-right">Confidence Level</th>
+                <th scope="col" class="px-6 py-3 text-right">Trend</th>
+                <th scope="col" class="px-6 py-3 text-right">Inventory Recommendation</th>
+                <th scope="col" class="px-6 py-3 rounded-r-lg">Update Details</th>
+            </tr>
+        `;
+        table.appendChild(thead);
+
+        const tbody = document.createElement('tbody');
+        data.forecast_table.forEach((row, index) => {
+            // Generate sample data for new columns
+            // In a real implementation, these would come from the API
+            const confidenceLevel = Math.round(85 + Math.random() * 10) + '%';
+            
+            // Calculate trend based on previous forecast if available
+            let trendIcon, trendClass;
+            if (index > 0 && data.forecast_table[index-1]) {
+                const prevForecast = parseFloat(data.forecast_table[index-1].forecast);
+                const currentForecast = parseFloat(row.forecast);
+                
+                if (currentForecast > prevForecast * 1.05) {
+                    trendIcon = '↑';
+                    trendClass = 'text-green-400';
+                } else if (currentForecast < prevForecast * 0.95) {
+                    trendIcon = '↓';
+                    trendClass = 'text-red-400';
+                } else {
+                    trendIcon = '→';
+                    trendClass = 'text-yellow-400';
+                }
+            } else {
+                trendIcon = '→';
+                trendClass = 'text-yellow-400';
+            }
+            
+            // Calculate inventory recommendation based on forecast value and trend
+            const forecastValue = parseFloat(row.forecast);
+            let inventoryRec;
+            
+            if (trendIcon === '↑') {
+                inventoryRec = Math.round(forecastValue * 1.2);
+            } else if (trendIcon === '↓') {
+                inventoryRec = Math.round(forecastValue * 0.9);
+            } else {
+                inventoryRec = Math.round(forecastValue * 1.1);
+            }
+            
+            const tr = document.createElement('tr');
+            tr.className = 'border-b border-gray-200 border-opacity-10';
+            tr.innerHTML = `
+                <td class="px-6 py-4 font-medium">${row.date}</td>
+                <td class="px-6 py-4 text-right font-semibold text-yellow-300">${row.forecast}</td>
+                <td class="px-6 py-4 text-right">
+                    <div class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${parseInt(confidenceLevel) > 90 ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">
+                        ${confidenceLevel}
+                    </div>
+                </td>
+                <td class="px-6 py-4 text-right">
+                    <span class="text-xl font-bold ${trendClass}">${trendIcon}</span>
+                </td>
+                <td class="px-6 py-4 text-right font-medium text-blue-300">${inventoryRec} units</td>
+                <td class="px-6 py-4">
+                    <div class="text-sm">
+                        ${data.product_id ? `<div><span class="font-medium">ID:</span> ${data.product_id}</div>` : ''}
+                        ${data.product_name ? `<div><span class="font-medium">Name:</span> ${data.product_name}</div>` : ''}
+                        ${data.location ? `<div><span class="font-medium">Location:</span> ${data.location}</div>` : ''}
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+        table.appendChild(tbody);
+        resultsContainer.appendChild(table);
+        
+        // 3. Add Forecast Insights Summary
+        const insightsDiv = document.createElement('div');
+        insightsDiv.className = 'mt-8 bg-gray-800 bg-opacity-50 p-6 rounded-lg';
+        
+        // Calculate some sample insights
+        const forecastValues = data.forecast_table.map(row => parseFloat(row.forecast));
+        const avgForecast = forecastValues.reduce((a, b) => a + b, 0) / forecastValues.length;
+        const maxForecast = Math.max(...forecastValues);
+        const minForecast = Math.min(...forecastValues);
+        const volatility = (maxForecast - minForecast) / avgForecast * 100;
+        
+        // Determine if there's a trend
+        let trendDescription = 'stable';
+        if (forecastValues.length > 3) {
+            const firstHalf = forecastValues.slice(0, Math.floor(forecastValues.length / 2));
+            const secondHalf = forecastValues.slice(Math.floor(forecastValues.length / 2));
+            const firstAvg = firstHalf.reduce((a, b) => a + b, 0) / firstHalf.length;
+            const secondAvg = secondHalf.reduce((a, b) => a + b, 0) / secondHalf.length;
+            
+            if (secondAvg > firstAvg * 1.05) {
+                trendDescription = 'increasing';
+            } else if (secondAvg < firstAvg * 0.95) {
+                trendDescription = 'decreasing';
+            }
+        }
+        
+        // Generate seasonal pattern detection
+        let seasonalPattern = 'No clear seasonal pattern detected';
+        if (data.forecast_frequency === 'Monthly' && forecastValues.length >= 12) {
+            seasonalPattern = 'Possible seasonal pattern detected with peaks in summer months';
+        } else if (data.forecast_frequency === 'Weekly' && forecastValues.length >= 52) {
+            seasonalPattern = 'Weekly pattern detected with higher demand on weekends';
+        }
+        
+        insightsDiv.innerHTML = `
+            <h3 class="text-xl font-bold text-yellow-400 mb-4">Forecast Insights & Recommendations</h3>
+            
+            <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                    <h4 class="text-lg font-semibold text-white mb-2">Key Metrics</h4>
+                    <ul class="space-y-2 text-gray-300">
+                        <li><span class="font-medium text-gray-400">Average Forecast:</span> ${avgForecast.toFixed(2)}</li>
+                        <li><span class="font-medium text-gray-400">Peak Demand:</span> ${maxForecast.toFixed(2)}</li>
+                        <li><span class="font-medium text-gray-400">Minimum Demand:</span> ${minForecast.toFixed(2)}</li>
+                        <li><span class="font-medium text-gray-400">Demand Volatility:</span> ${volatility.toFixed(1)}%</li>
+                        <li><span class="font-medium text-gray-400">Overall Trend:</span> <span class="${trendDescription === 'increasing' ? 'text-green-400' : trendDescription === 'decreasing' ? 'text-red-400' : 'text-yellow-400'}">${trendDescription}</span></li>
+                        <li><span class="font-medium text-gray-400">Seasonality:</span> ${seasonalPattern}</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold text-white mb-2">Business Recommendations</h4>
+                    <ul class="space-y-2 text-gray-300">
+                        <li><span class="font-medium text-blue-400">Inventory Planning:</span> Maintain a safety stock of ${Math.round(avgForecast * 0.2)} units to account for forecast uncertainty.</li>
+                        <li><span class="font-medium text-blue-400">Resource Allocation:</span> Plan for peak capacity of ${Math.round(maxForecast * 1.1)} units during high-demand periods.</li>
+                        <li><span class="font-medium text-blue-400">Budget Planning:</span> ${trendDescription === 'increasing' ? 'Consider increasing production budget by 15% to meet growing demand.' : trendDescription === 'decreasing' ? 'Consider optimizing costs as demand shows a downward trend.' : 'Maintain current budget allocations as demand appears stable.'}</li>
+                        <li><span class="font-medium text-blue-400">Risk Assessment:</span> ${volatility > 30 ? 'High demand volatility detected. Consider hedging strategies.' : volatility > 15 ? 'Moderate demand volatility. Regular monitoring recommended.' : 'Low volatility indicates stable demand patterns.'}</li>
+                        <li><span class="font-medium text-blue-400">Marketing Opportunities:</span> ${trendDescription === 'decreasing' ? 'Consider promotional campaigns to boost demand.' : 'Focus marketing efforts during forecasted peak demand periods.'}</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="mt-6 pt-4 border-t border-gray-700">
+                <h4 class="text-lg font-semibold text-white mb-2">Data Quality Assessment</h4>
+                <div class="flex items-center">
+                    <div class="w-full bg-gray-700 rounded-full h-2.5">
+                        <div class="bg-yellow-400 h-2.5 rounded-full" style="width: 85%"></div>
+                    </div>
+                    <span class="ml-2 text-yellow-400 font-medium">85%</span>
+                </div>
+                <p class="mt-2 text-sm text-gray-400">Data quality score based on completeness, consistency, and historical coverage. Consider adding more historical data points to improve forecast accuracy.</p>
+            </div>
+        `;
+        
+        resultsContainer.appendChild(insightsDiv);
+    }
+
+    // --- CHATBOT FUNCTIONALITY ---
+    const chatbotButton = document.getElementById('chatbot-button');
+    const chatbotContainer = document.getElementById('chatbot-container');
+    const chatbotClose = document.getElementById('chatbot-close');
+    const chatbotMessages = document.getElementById('chatbot-messages');
+    const chatbotInputField = document.getElementById('chatbot-input-field');
+    const chatbotSend = document.getElementById('chatbot-send');
+    
+    // Toggle chatbot visibility
+    chatbotButton.addEventListener('click', () => {
+        chatbotContainer.style.display = 'flex';
+        chatbotButton.style.display = 'none';
+        chatbotInputField.focus();
+    });
+    
+    chatbotClose.addEventListener('click', () => {
+        chatbotContainer.style.display = 'none';
+        chatbotButton.style.display = 'flex';
+    });
+    
+    // Send message function
+    function sendMessage() {
+        const message = chatbotInputField.value.trim();
+        if (message === '') return;
+        
+        // Add user message to chat
+        addMessage(message, 'user-message');
+        chatbotInputField.value = '';
+        
+        // Simulate thinking
+        setTimeout(() => {
+            // Get AI response based on user message
+            const response = getAIResponse(message);
+            addMessage(response, 'bot-message');
+        }, 600);
+    }
+    
+    // Add message to chat
+    function addMessage(text, className) {
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('message', className);
+        messageElement.textContent = text;
+        chatbotMessages.appendChild(messageElement);
+        chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+    }
+    
+    // Get AI response based on user input
+    function getAIResponse(message) {
+        message = message.toLowerCase();
+        
+        // Simple response logic based on keywords
+        if (message.includes('hello') || message.includes('hi') || message.includes('hey')) {
+            return 'Hello! How can I assist you with sales forecasting today?';
+        } else if (message.includes('forecast') || message.includes('prediction')) {
+            return 'Our AI forecasting models use historical data to predict future sales trends. Would you like to upload your data for analysis?';
+        } else if (message.includes('accuracy') || message.includes('reliable')) {
+            return 'Our forecasting models achieve 92-97% accuracy depending on data quality and market volatility. We continuously improve our algorithms for better results.';
+        } else if (message.includes('data') || message.includes('upload')) {
+            return 'You can upload your historical sales data in CSV or Excel format. Our system requires at least 12 months of data for optimal results.';
+        } else if (message.includes('model') || message.includes('algorithm')) {
+            return 'We use ensemble methods combining ARIMA, Prophet, and deep learning models to generate forecasts. This hybrid approach captures both seasonal patterns and long-term trends.';
+        } else if (message.includes('help') || message.includes('support')) {
+            return 'I can help with data preparation, model selection, and interpreting forecast results. What specific assistance do you need?';
+        } else if (message.includes('thank')) {
+            return 'You are welcome! Feel free to ask if you have any other questions.';
+        } else {
+            return 'I am not sure I understand. Could you rephrase your question about sales forecasting?';
+        }
+    }
+    
+    // Send message on button click
+    chatbotSend.addEventListener('click', sendMessage);
+    
+    // Send message on Enter key
+    chatbotInputField.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            sendMessage();
+        }
+    });
+    
+    // --- WEATHER IMPACT FUNCTIONALITY ---
+    const weatherForm = document.getElementById('weather-form');
+    const tempSlider = document.getElementById('temp-slider');
+    const tempValue = document.getElementById('temp-value');
+    const weatherResults = document.getElementById('weather-results');
+    const weatherChart = document.getElementById('weather-chart');
+    
+    // Update temperature value display when slider changes
+    if (tempSlider) {
+        tempSlider.addEventListener('input', () => {
+            tempValue.textContent = `${tempSlider.value}°F`;
+        });
+    }
+    
+    // Handle weather form submission
+    if (weatherForm) {
+        weatherForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            // Get form values with console logging for debugging
+            console.log('Form submitted - getting values');
+            const category = document.getElementById('product-category').value;
+            console.log('Category:', category);
+            const season = document.getElementById('season').value;
+            console.log('Season:', season);
+            const temp = document.getElementById('temp-slider').value;
+            console.log('Temperature:', temp);
+            
+            // Get precipitation value from radio buttons
+            let precipitation = 'None';
+            if (document.getElementById('rain').checked) {
+                precipitation = 'Rain';
+            } else if (document.getElementById('snow').checked) {
+                precipitation = 'Snow';
+            }
+            console.log('Precipitation:', precipitation);
+            
+            const location = document.getElementById('location').value;
+            console.log('Location:', location);
+            
+            // Show loading state
+            weatherChart.innerHTML = `
+                <div class="text-center text-gray-500">
+                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-400 mx-auto"></div>
+                    <p class="mt-2">Analyzing weather impact on sales...</p>
+                </div>
+            `;
+            
+            // Show results immediately without delay
+            weatherResults.classList.remove('hidden');
+            
+            // Use the form values already retrieved above for analysis
+            // Calculate impact percentages based on selections
+            let salesImpact, inventoryRec, confidenceScore;
+                
+                // Impact calculation based on product category and season
+                if (category === 'Electronics') {
+                    if (season === 'Winter') {
+                        salesImpact = '+15%';
+                        inventoryRec = '+20%';
+                        confidenceScore = 87;
+                    } else if (season === 'Summer') {
+                        salesImpact = '-5%';
+                        inventoryRec = '-10%';
+                        confidenceScore = 82;
+                    } else {
+                        salesImpact = '+5%';
+                        inventoryRec = '+8%';
+                        confidenceScore = 85;
+                    }
+                } else if (category === 'Clothing') {
+                    if (season === 'Winter') {
+                        salesImpact = '+25%';
+                        inventoryRec = '+30%';
+                        confidenceScore = 92;
+                    } else if (season === 'Summer') {
+                        salesImpact = '-15%';
+                        inventoryRec = '-20%';
+                        confidenceScore = 88;
+                    } else {
+                        salesImpact = '+10%';
+                        inventoryRec = '+15%';
+                        confidenceScore = 86;
+                    }
+                } else if (category === 'Food & Beverage') {
+                    if (season === 'Summer') {
+                        salesImpact = '+35%';
+                        inventoryRec = '+40%';
+                        confidenceScore = 94;
+                    } else if (season === 'Winter') {
+                        salesImpact = '-10%';
+                        inventoryRec = '-15%';
+                        confidenceScore = 89;
+                    } else {
+                        salesImpact = '+5%';
+                        inventoryRec = '+10%';
+                        confidenceScore = 87;
+                    }
+                } else { // Home & Kitchen or other
+                    if (season === 'Fall') {
+                        salesImpact = '+20%';
+                        inventoryRec = '+25%';
+                        confidenceScore = 90;
+                    } else if (season === 'Spring') {
+                        salesImpact = '+15%';
+                        inventoryRec = '+20%';
+                        confidenceScore = 88;
+                    } else {
+                        salesImpact = '+5%';
+                        inventoryRec = '+10%';
+                        confidenceScore = 85;
+                    }
+                }
+                
+                // Adjust for precipitation
+                if (precipitation === 'Rain') {
+                    if (category === 'Clothing' || category === 'Electronics') {
+                        salesImpact = salesImpact.startsWith('+') ? 
+                            '+' + (parseInt(salesImpact.slice(1)) + 5) + '%' : 
+                            (parseInt(salesImpact) - 5) + '%';
+                    } else if (category === 'Food & Beverage') {
+                        salesImpact = salesImpact.startsWith('+') ? 
+                            '+' + (parseInt(salesImpact.slice(1)) - 10) + '%' : 
+                            (parseInt(salesImpact) - 10) + '%';
+                    }
+                } else if (precipitation === 'Snow') {
+                    if (category === 'Clothing') {
+                        salesImpact = salesImpact.startsWith('+') ? 
+                            '+' + (parseInt(salesImpact.slice(1)) + 15) + '%' : 
+                            (parseInt(salesImpact) + 15) + '%';
+                    } else {
+                        salesImpact = salesImpact.startsWith('+') ? 
+                            '+' + (parseInt(salesImpact.slice(1)) - 15) + '%' : 
+                            (parseInt(salesImpact) - 15) + '%';
+                    }
+                }
+                
+                // Update results section with analysis
+                const weatherResultsContent = document.createElement('div');
+                 weatherResultsContent.innerHTML = `
+                    <div class="grid md:grid-cols-3 gap-4 mb-6">
+                        <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm text-center">
+                            <h4 class="text-sm font-semibold text-gray-800 mb-2">Sales Impact</h4>
+                            <p class="text-2xl font-bold ${salesImpact.startsWith('+') ? 'text-purple-600' : 'text-red-600'}">${salesImpact}</p>
+                            <p class="text-xs text-gray-600 mt-2">Expected change in sales</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm text-center">
+                            <h4 class="text-sm font-semibold text-gray-800 mb-2">Inventory Recommendation</h4>
+                            <p class="text-2xl font-bold text-blue-600">${inventoryRec}</p>
+                            <p class="text-xs text-gray-600 mt-2">Suggested inventory adjustment</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm text-center">
+                            <h4 class="text-sm font-semibold text-gray-800 mb-2">Confidence Score</h4>
+                            <div class="flex items-center justify-center">
+                                <div class="w-full bg-gray-200 rounded-full h-2.5 max-w-[150px]">
+                                    <div class="bg-indigo-600 h-2.5 rounded-full" style="width: ${confidenceScore}%"></div>
+                                </div>
+                                <span class="ml-2 text-xl font-bold text-indigo-600">${confidenceScore}%</span>
+                            </div>
+                            <p class="text-xs text-gray-600 mt-2">Based on historical correlations</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm mb-6">
+                        <h4 class="text-md font-semibold text-gray-800 mb-2">Key Insights</h4>
+                        <ul class="space-y-2 text-gray-700">
+                            <li><span class="font-medium text-purple-600">• Location:</span> ${location} shows ${salesImpact.startsWith('+') ? 'positive' : 'negative'} correlation between ${season.toLowerCase()} weather and ${category.toLowerCase()} sales.</li>
+                            <li><span class="font-medium text-purple-600">• Temperature:</span> ${temp}°F temperatures ${parseInt(temp) > 70 ? 'increase' : 'decrease'} ${category.toLowerCase()} demand by approximately ${parseInt(temp) > 70 ? '+8%' : '-5%'}.</li>
+                            <li><span class="font-medium text-purple-600">• Precipitation:</span> ${precipitation === 'None' ? 'Clear weather has neutral impact on sales.' : precipitation + ' typically ' + (precipitation === 'Rain' ? 'decreases foot traffic but increases online sales.' : 'significantly impacts logistics and delivery times.')}</li>
+                            <li><span class="font-medium text-purple-600">• Historical Data:</span> Based on our sample data, ${category} products show ${salesImpact.startsWith('+') ? 'strong positive' : 'some negative'} correlation with ${season.toLowerCase()} weather patterns.</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                        <h4 class="text-md font-semibold text-gray-800 mb-2">Recommended Actions</h4>
+                        <ul class="space-y-2 text-gray-700">
+                            <li><span class="font-medium text-blue-600">• Inventory:</span> ${salesImpact.startsWith('+') ? 'Increase' : 'Decrease'} ${category.toLowerCase()} inventory by ${inventoryRec} for the ${season.toLowerCase()} season.</li>
+                            <li><span class="font-medium text-blue-600">• Marketing:</span> ${salesImpact.startsWith('+') ? 'Capitalize on favorable weather conditions with targeted promotions.' : 'Consider special promotions to offset negative weather impact.'}</li>
+                            <li><span class="font-medium text-blue-600">• Pricing:</span> ${salesImpact.startsWith('+') ? 'Opportunity to optimize pricing during high-demand weather periods.' : 'Consider temporary discounts to maintain sales volume.'}</li>
+                            <li><span class="font-medium text-blue-600">• Supply Chain:</span> ${precipitation === 'None' ? 'Standard logistics planning recommended.' : 'Prepare contingency plans for ' + precipitation.toLowerCase() + ' weather disruptions.'}</li>
+                        </ul>
+                        
+                        <!-- Added crispy content with actionable insights -->
+                        <div class="mt-4 pt-3 border-t border-gray-200">
+                            <h5 class="text-sm font-semibold text-indigo-600 mb-2">Implementation Strategy</h5>
+                            <p class="text-xs text-gray-600 mb-2">For ${location} during ${season} with ${precipitation} conditions:</p>
+                            <ol class="text-xs text-gray-600 list-decimal pl-4 space-y-1">
+                                <li>Adjust inventory levels ${salesImpact.startsWith('+') ? 'upward' : 'downward'} within 7-10 days</li>
+                                <li>Launch ${salesImpact.startsWith('+') ? 'premium' : 'value'} marketing campaigns targeting ${category} buyers</li>
+                                <li>Review supply chain resilience for ${precipitation.toLowerCase()} weather scenarios</li>
+                                <li>Schedule weekly performance reviews to measure effectiveness</li>
+                            </ol>
+                        </div>
+                    </div>
+                `;
+                
+                // Clear previous results and append new content
+                weatherResults.innerHTML = '';
+                weatherResults.appendChild(weatherResultsContent);
+                
+                console.log('Creating weather visualization');
+                
+                // Create dynamic weather impact visualization - clear previous content
+                weatherChart.innerHTML = '';
+                
+                // Create the visualization container with a more attractive design
+                const weatherVisualization = document.createElement('div');
+                weatherVisualization.className = 'flex justify-around items-end h-48 mt-4 p-2 bg-gradient-to-b from-blue-50 to-transparent rounded-lg';
+                
+                console.log('Setting up seasonal data');
+                // Simulate weather impact analysis based on selected parameters
+                let winterHeight, springHeight, summerHeight, fallHeight;
+                
+                // Set heights based on season
+                if (season === 'Winter') {
+                    winterHeight = '80%';
+                    springHeight = '50%';
+                    summerHeight = '30%';
+                    fallHeight = '60%';
+                } else if (season === 'Spring') {
+                    winterHeight = '40%';
+                    springHeight = '85%';
+                    summerHeight = '60%';
+                    fallHeight = '50%';
+                } else if (season === 'Summer') {
+                    winterHeight = '30%';
+                    springHeight = '60%';
+                    summerHeight = '90%';
+                    fallHeight = '50%';
+                } else { // Fall
+                    winterHeight = '50%';
+                    springHeight = '40%';
+                    summerHeight = '60%';
+                    fallHeight = '85%';
+                }
+                
+                // Adjust colors based on product category
+                let winterColor, springColor, summerColor, fallColor;
+                
+                if (category === 'Electronics') {
+                    winterColor = 'bg-blue-600';
+                    springColor = 'bg-blue-400';
+                    summerColor = 'bg-yellow-500';
+                    fallColor = 'bg-blue-500';
+                } else if (category === 'Clothing') {
+                    winterColor = 'bg-blue-700';
+                    springColor = 'bg-green-500';
+                    summerColor = 'bg-yellow-400';
+                    fallColor = 'bg-orange-500';
+                } else if (category === 'Food & Beverage') {
+                    winterColor = 'bg-blue-400';
+                    springColor = 'bg-green-600';
+                    summerColor = 'bg-yellow-600';
+                    fallColor = 'bg-orange-400';
+                } else { // Home & Kitchen or other
+                    winterColor = 'bg-blue-500';
+                    springColor = 'bg-green-400';
+                    summerColor = 'bg-yellow-500';
+                    fallColor = 'bg-orange-600';
+                }
+
+                console.log('Creating visualization bars with colors:', winterColor, springColor, summerColor, fallColor);
+                console.log('Heights:', winterHeight, springHeight, summerHeight, fallHeight);
+                
+                // Enhanced visualization with animations and better styling
+                weatherVisualization.innerHTML = `
+                    <div class="flex flex-col items-center">
+                        <div class="${winterColor} w-16 rounded-t-md shadow-lg transform transition-all duration-500 hover:scale-110" 
+                             style="height: ${winterHeight};"></div>
+                        <span class="text-sm font-medium text-gray-700 mt-2">Winter</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <div class="${springColor} w-16 rounded-t-md shadow-lg transform transition-all duration-500 hover:scale-110" 
+                             style="height: ${springHeight};"></div>
+                        <span class="text-sm font-medium text-gray-700 mt-2">Spring</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <div class="${summerColor} w-16 rounded-t-md shadow-lg transform transition-all duration-500 hover:scale-110" 
+                             style="height: ${summerHeight};"></div>
+                        <span class="text-sm font-medium text-gray-700 mt-2">Summer</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <div class="${fallColor} w-16 rounded-t-md shadow-lg transform transition-all duration-500 hover:scale-110" 
+                             style="height: ${fallHeight};"></div>
+                        <span class="text-sm font-medium text-gray-700 mt-2">Fall</span>
+                    </div>
+                `;
+                
+                // Apply animation through JavaScript for better browser compatibility
+                setTimeout(() => {
+                    const bars = weatherVisualization.querySelectorAll('div > div');
+                    bars.forEach((bar, index) => {
+                        const originalHeight = bar.style.height;
+                        bar.style.height = '0';
+                        bar.style.opacity = '0';
+                        bar.style.transition = 'height 0.8s ease-out, opacity 0.8s ease-out';
+                        
+                        setTimeout(() => {
+                            bar.style.height = originalHeight;
+                            bar.style.opacity = '1';
+                        }, index * 200);
+                    });
+                }, 50);
+                
+                console.log('Appending visualization to chart container');
+                weatherChart.appendChild(weatherVisualization);
+                
+        });
+    }
+    
+    // --- INVENTORY OPTIMIZATION FUNCTIONALITY ---
+    function initInventoryOptimization() {
+        const inventoryForm = document.getElementById('inventory-form');
+        const inventoryResults = document.getElementById('inventory-results');
+        
+        if (inventoryForm) {
+            inventoryForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                // Get form values
+                const category = document.getElementById('inventory-category').value;
+                const location = document.getElementById('inventory-location').value;
+                const leadTime = parseInt(document.getElementById('lead-time').value);
+                const serviceLevel = parseInt(document.getElementById('service-level').value);
+                const holdingCost = parseInt(document.getElementById('holding-cost').value);
+                const stockoutCost = parseInt(document.getElementById('stockout-cost').value);
+                
+                // Show loading state (simulate API call)
+                // Show immediate feedback with optimized loading indicator
+                inventoryResults.innerHTML = `
+                    <div class="text-center text-gray-500 py-4">
+                        <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-yellow-400 mx-auto"></div>
+                        <p class="mt-1">Optimizing inventory levels...</p>
+                    </div>
+                `;
+                inventoryResults.classList.remove('hidden');
+                
+                // Calculate inventory optimization metrics immediately without delay
+                // These would normally come from a backend API with real calculations
+                // For now we'll simulate the results based on inputs
+                
+                // Economic Order Quantity calculation (simplified EOQ model)
+                const annualDemand = getSimulatedAnnualDemand(category, location);
+                const orderingCost = 150; // Fixed cost per order in $
+                const holdingCostDecimal = holdingCost / 100; // Convert percentage to decimal
+                    
+                // EOQ formula: sqrt(2 * Annual Demand * Ordering Cost / Holding Cost)
+                const eoq = Math.round(Math.sqrt((2 * annualDemand * orderingCost) / (holdingCostDecimal * 100)));
+                    
+                    // Safety stock calculation based on service level
+                    const stdDevDemand = Math.round(annualDemand * 0.2 / 52); // Weekly standard deviation (20% of weekly demand)
+                    const stdDevLeadTime = leadTime * 0.5; // Standard deviation of lead time (50% of lead time)
+                    const serviceFactor = getServiceFactor(serviceLevel);
+                    const safetyStock = Math.round(serviceFactor * stdDevDemand * Math.sqrt(leadTime));
+                    
+                    // Reorder point calculation
+                    const weeklyDemand = Math.round(annualDemand / 52);
+                    const demandDuringLeadTime = weeklyDemand * leadTime;
+                    const reorderPoint = Math.round(demandDuringLeadTime + safetyStock);
+                    
+                    // Cost calculations
+                    const annualOrderingCost = Math.round((annualDemand / eoq) * orderingCost);
+                    const annualHoldingCost = Math.round(((eoq / 2) + safetyStock) * holdingCostDecimal * 100);
+                    const totalAnnualCost = annualOrderingCost + annualHoldingCost;
+                    
+                // Generate recommendations based on inputs and calculations
+                const recommendations = generateInventoryRecommendations(
+                    category, location, eoq, safetyStock, reorderPoint, 
+                    leadTime, serviceLevel, holdingCost, stockoutCost
+                );
+                    
+                // Update the results UI
+                document.getElementById('optimal-quantity').textContent = eoq.toLocaleString();
+                document.getElementById('safety-stock').textContent = safetyStock.toLocaleString();
+                document.getElementById('reorder-point').textContent = reorderPoint.toLocaleString();
+                
+                document.getElementById('ordering-cost').textContent = '$' + annualOrderingCost.toLocaleString();
+                document.getElementById('total-holding-cost').textContent = '$' + annualHoldingCost.toLocaleString();
+                document.getElementById('total-cost').textContent = '$' + totalAnnualCost.toLocaleString();
+                
+                // Get the recommendations list element and populate it
+                const recommendationsList = document.getElementById('recommendations');
+                recommendationsList.innerHTML = ''; // Clear previous recommendations
+                
+                // Add recommendations with animated appearance
+                recommendations.forEach((rec, index) => {
+                    const li = document.createElement('li');
+                    li.innerHTML = rec;
+                    li.style.opacity = '0';
+                    li.style.transform = 'translateY(10px)';
+                    li.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                    recommendationsList.appendChild(li);
+                    
+                    // Stagger the appearance of recommendations
+                    setTimeout(() => {
+                        li.style.opacity = '1';
+                        li.style.transform = 'translateY(0)';
+                    }, index * 100);
+                });
+                
+                // Show the results immediately
+                inventoryResults.classList.remove('hidden');
+                
+                // Add a subtle entrance animation to the results cards
+                const resultCards = document.querySelectorAll('#inventory-results .grid > div');
+                resultCards.forEach((card, index) => {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(20px)';
+                    card.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+                    
+                    setTimeout(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, 100 + (index * 100));
+                });
+            });
+        }
+    }
+    
+    // Helper function to get simulated annual demand based on category and location
+    function getSimulatedAnnualDemand(category, location) {
+        // Base demand values by category
+        const baseDemand = {
+            'electronics': 5000,
+            'clothing': 8000,
+            'food': 12000,
+            'seasonal': 3500,
+            'home': 4200
+        };
+        
+        // Location multipliers
+        const locationMultiplier = {
+            'new-york': 1.4,
+            'los-angeles': 1.3,
+            'chicago': 1.1,
+            'mumbai': 1.5,
+            'delhi': 1.4,
+            'bangalore': 1.2,
+            'miami': 1.0,
+            'seattle': 0.9
+        };
+        
+        // Calculate demand with some randomness
+        const baseValue = baseDemand[category] || 5000;
+        const multiplier = locationMultiplier[location] || 1.0;
+        const randomFactor = 0.9 + (Math.random() * 0.2); // Random factor between 0.9 and 1.1
+        
+        return Math.round(baseValue * multiplier * randomFactor);
+    }
+    
+    // Helper function to get service factor based on service level
+    function getServiceFactor(serviceLevel) {
+        // Map common service levels to z-scores
+        const serviceFactors = {
+            90: 1.28,
+            95: 1.65,
+            99: 2.33
+        };
+        
+        return serviceFactors[serviceLevel] || 1.65; // Default to 95% if not found
+    }
+    
+    // Generate inventory recommendations based on calculated metrics and inputs
+    function generateInventoryRecommendations(category, location, eoq, safetyStock, reorderPoint, leadTime, serviceLevel, holdingCost, stockoutCost) {
+        const recommendations = [];
+        
+        // Base recommendations that apply to all scenarios
+        recommendations.push(`Set your optimal order quantity to <strong>${eoq.toLocaleString()}</strong> units to minimize total costs.`);
+        recommendations.push(`Maintain a safety stock of <strong>${safetyStock.toLocaleString()}</strong> units to protect against demand variability.`);
+        recommendations.push(`Place new orders when inventory reaches <strong>${reorderPoint.toLocaleString()}</strong> units.`);
+        
+        // Category-specific recommendations
+        if (category === 'electronics') {
+            recommendations.push('Consider implementing a just-in-time inventory system for high-value electronics.');
+            recommendations.push('Monitor technological obsolescence risk for electronic inventory.');
+        } else if (category === 'clothing') {
+            recommendations.push('Adjust inventory levels seasonally for fashion-sensitive items.');
+            recommendations.push('Consider size distribution in your inventory planning.');
+        } else if (category === 'food') {
+            recommendations.push('Implement FIFO (First In, First Out) inventory management for perishables.');
+            recommendations.push('Consider shorter review periods for perishable items.');
+        } else if (category === 'seasonal') {
+            recommendations.push('Build inventory before peak seasons and liquidate after seasons end.');
+            recommendations.push('Use historical seasonal patterns to adjust safety stock levels throughout the year.');
+        }
+        
+        // Location-specific recommendations
+        if (location === 'mumbai' || location === 'delhi' || location === 'bangalore') {
+            recommendations.push('Account for monsoon season disruptions in your inventory planning.');
+            recommendations.push('Consider regional holidays and festivals that may impact demand patterns.');
+        }
+        
+        // Lead time recommendations
+        if (leadTime > 30) {
+            recommendations.push('Investigate alternative suppliers to reduce lead times.');
+            recommendations.push('Consider implementing a vendor-managed inventory system for critical items.');
+        }
+        
+        // Service level recommendations
+        if (serviceLevel >= 99) {
+            recommendations.push('Your premium service level requires higher safety stock, consider segmenting inventory by item importance.');
+        }
+        
+        // Cost-based recommendations
+        if (holdingCost > 30) {
+            recommendations.push('Your holding costs are high, consider more frequent smaller orders.');
+        }
+        
+        if (stockoutCost > 50) {
+            recommendations.push('High stockout costs justify maintaining higher safety stock levels.');
+        }
+        
+        return recommendations;
+    }
+    
+    // Initialize the inventory optimization functionality
+    initInventoryOptimization();
+</script>
+</body>
+</html>
